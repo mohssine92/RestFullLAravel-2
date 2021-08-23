@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DRIVER', 'images'),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,10 +25,10 @@ return [
     | been setup for each driver as an example of the required options.
     |
     | Supported Drivers: "local", "ftp", "sftp", "s3"
-    |
+    |  sistema de archivo que usara laravel por defecto 112
     */
 
-    'disks' => [
+    'disks' => [ // diferentes sistemas de arcchivos
 
         'local' => [
             'driver' => 'local',
@@ -52,6 +52,13 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
         ],
 
+        // es prefible crear nuestro systema de archivos 112 - systeam de archivos para subir y almazenar imagenes
+        'images' => [
+            'driver' => 'local',
+            'root' => public_path('img'), // public_path helpers
+            //'url' => env('APP_URL').'/storage', no necesitamos la url
+            'visibility' => 'public',
+        ],
     ],
 
     /*

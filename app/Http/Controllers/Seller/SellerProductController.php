@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Seller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /* el que hace la peticion de crear product tiene que tener autorizacion sufuciente o que sea mismo seller:vendedor
@@ -30,7 +31,7 @@ class SellerProductController extends ApiController
 
 
 
-    /**
+    /** subia de un product relacionado a un seller
      * 102
      * Store a newly created resource in storage.
      *
@@ -50,7 +51,7 @@ class SellerProductController extends ApiController
         'description' => 'required',
         'quantity' => 'required|integer|min:1', // numero intero , tener un valor por lo menos 1
         'image' => 'required|image', // debe ser por supuesto una imagen
-      ];
+      ]; // tener en cuenta que esta rechazando algunos images
 
       $this->validate($request, $rules);
 
@@ -58,7 +59,9 @@ class SellerProductController extends ApiController
 
       // hacer modificaciones sobre ellas
       $campos['status'] = Product::PRODUCTO_NO_DISPONIBLE; // por defecto al inicio al crear un product sera no dispo -depues permitimos editar ...
-      $campos['image'] = '1.jpg';//$request->image->store('');
+      $campos['image'] = $request->image->store(''); //  'a' 2 arg se especifica sistema de archivo por defaul que hemos creadover video 113
+      // primer arg es para ubicacion en la carpeta de img , produecto pude crecer y si almacenamos en misma carpeta pueden ser millones de images y eso puede crear problema sistema sera lenta para cargar images es decir
+      // la edea es almacenar por semana , cada semana se genera una ubicacion para almacenamiento de archivos
       $campos['seller_id'] = $Seller->id; // $user : sera un seller despues de la subida del primer product
 
 
@@ -109,13 +112,15 @@ class SellerProductController extends ApiController
         $this->verificarVendedor($seller, $product);
 
 
-        // llenar las primeras instancias de la actualizacion usando metodo fill() : al llamar este funcion para asegurar de incluir unicamente los valores recibidos en la peticion usamo only() metod de la petiicion
+        // llenar las primeras instancias de la actualizacion usando metodo fill() : al llamar este funcion para asegurar de incluir unicamente los valores definidos en la coleccion de los que llegaron por peticion
         $product->fill($request->only([
           'name',
           'description',
           'quantity',
+         /*  'status', */
 
         ]));
+
 
 
         // permitimos cambio de estado Unicamnete si este producto tiene minimo asociada una categoria
@@ -127,10 +132,18 @@ class SellerProductController extends ApiController
            */
             $product->status = $request->status;  // modificar estado de manera inicial
 
-            if($product->estaDiponible() && $product->categories()->count() == 0 ) { // 0 segnifica coleccion vacia -no consta de cartegoria o categorias
+
+            if($product->estaDisponible() && $product->categories()->count() == 0 ) { // 0 segnifica coleccion vacia -no consta de cartegoria o categorias
                 return $this->errorResponse('Un producto activo debe tener al menos una categoría', 409); //409 : codigo de conflicto
             }
+            //return $this->showOne($product);
 
+        }
+
+        if ($request->hasFile('image')) { //115
+            Storage::delete($product->image);
+
+            $product->image = $request->image->store('');
         }
 
 
@@ -139,7 +152,8 @@ class SellerProductController extends ApiController
 
             return $this->errorResponse('Se debe especificar al menos un valor diferente para actualizar', 422);
 
-        }
+        } // vamos a notar al igual la actualizacion se realiza cuando tenemos img , aunque no con la misma img porque es bastante dificl saber si el archivo es el mismop o no . 115
+          // lo mas importante archivo se elemina y se crea otro nuevo precticamente con la misma imagen
 
 
 
@@ -165,9 +179,19 @@ class SellerProductController extends ApiController
 
        $this->verificarVendedor($seller, $product); // verificar si el vendedor es el propitario
 
+       // eleminacion img del servidor antes de eleminar producto especifico de la db
+       Storage::delete($product->image);//esta facade nos permitira interectuar directamente con systema de archivos de laravel - solo especificamos nombre de archivo - hemos configurado sustema de archivos por defecto 114
+
+
        $product->delete();
 
        return $this->showOne($product);
+
+       /* recordar estamos eleminando archivo img de manera difinitiva
+        * pero producto no - estamos usando softdelete
+          no deberia eleminar de manera difinitiva archivo a menos que la instancia sera eleminada de manera definitiva :
+          posteriormente resolvemos el caso proceder la eliminacion tanto archivo como la instancia coo tal
+       */
     }
 
 

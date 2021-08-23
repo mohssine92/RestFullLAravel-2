@@ -29,6 +29,15 @@ class DatabaseSeeder extends Seeder  /* como esta classe  DatabaseSeeder extiend
      */
     public function run()
     {
+        /* desactivar los eventos relacionados a un modelo en provider . una causa es voy a mandar muchos coreos electronicos al momento de seedear el modelo de user
+           es buena idea desactivarlo por cada uno de nuestros modelos 121
+        */
+        User::flushEventListeners();
+        Category::flushEventListeners();
+        Product::flushEventListeners();
+        Transaction::flushEventListeners();
+
+
 
         /* evitar caller en el problema de claves Foreaneas al momento de borra  */
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');

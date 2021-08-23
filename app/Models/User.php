@@ -110,8 +110,6 @@ class User extends Authenticatable
     ];
 
 
-
-
   /*
    * para saber si un user esta verificado o no
   */

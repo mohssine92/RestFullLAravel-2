@@ -29,7 +29,7 @@ class ProductFactory extends Factory  /* al extender de una clase mayor puedo ha
             'name' => $this->faker->word,
             'description' => $this->faker->paragraph(1),
             'quantity' => $this->faker->numberBetween(1, 10),
-            'status' => $this->faker->randomElement([Product::PRODUCT_DISPONIBLE, Product::PRODUCTO_NO_DISPONIBLE]),
+            'status' => $this->faker->randomElement([Product::PRODUCTO_DISPONIBLE, Product::PRODUCTO_NO_DISPONIBLE]),
             'image' => $this->faker->randomElement(['1.jpg', '2.jpg', '3.jpg']),
             // 'seller_id' => User::inRandomOrder()->first()->id,
             /*

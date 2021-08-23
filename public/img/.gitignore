@@ -1,0 +1,5 @@
+*
+!.gitignore
+
+
+# de esta manera aseguramos que carpeta img siempre va existir sin embargo todos los * archivos anteriores no van a ser sincronizados

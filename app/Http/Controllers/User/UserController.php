@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\ApiController;
+use App\Mail\UserCreated;
 use Illuminate\Http\Request;
 
 use App\Models\User; // Orm eloquente de laravel
-
-
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends ApiController
 {
@@ -171,4 +171,41 @@ class UserController extends ApiController
         return $this->showOne( $user );
 
     }
-}
+
+
+    public function verify($token)
+    {
+        $user = User::where('verification_token', $token)->firstOrFail(); // si no exist - dispara excepcion model not fount ..
+
+
+        $user->verified = User::USUARIO_VERIFICADO;
+        $user->verification_token = null; // evitar seguir avalidando de manera inecesaria - remover token
+
+        $user->save();
+
+        return $this->showMessage('La cuenta ha sido verificada');
+
+    }
+
+    public function resend(User $user)
+    {
+        if ($user->esVerificado()) {
+            return $this->errorResponse('Este usuario ya ha sido verificado.', 409);
+        } // si es cuenta de un user verificado no es neceseriamente reenviar correo de verificacion
+
+        retry(5, function() use ($user) {
+
+          Mail::to($user)->send(new UserCreated($user));
+
+        }, 100); // 126
+
+        return $this->showMessage('El correo de verificación se ha reenviado');
+        /* con la fenalidad por al algun razon usuario no recibio correo de verificacion pues este user puede solicitar que le invie un correo de vertificacion sin nesecida de que se cambie su cuenta de correo
+           o algo similar de los casos que hemos implementado antes .
+
+         */
+
+    }
+
+
+}/* 117 */

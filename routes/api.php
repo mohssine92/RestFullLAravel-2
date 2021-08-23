@@ -86,6 +86,8 @@ Route::resource('sellers.products', 'Seller\SellerProductController',['except' =
  * except create y edit  que returnan los formularios - de hecho aclaramos que vamos a permitir crear users pero usando metodo post put o delete segun corresponde - no por formularios:es de uso html front-end
 */
 Route::resource('users', 'User\UserController',['except' => ['create','edit']]);
+Route::name('verify')->get('users/verify/{token}', 'User\UserController@verify'); // 117 : verificacion del correo del usuario
+Route::name('resend')->get('users/{user}/resend', 'User\UserController@resend'); // 125
 
 
 

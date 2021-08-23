@@ -35,8 +35,8 @@ return [
 
     'mailers' => [
         'smtp' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+            'transport' => 'smtp', // servicio que vamos a utulizar para mandar correos electronicos
+            'host' => env('MAIL_HOST', 'smtp.mailgun.org'), // fijate se puede esblecer mediante variables de entorno
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
@@ -74,7 +74,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Global "From" Address
+    | Global "From" Address remitente global
     |--------------------------------------------------------------------------
     |
     | You may wish for all e-mails sent by your application to be sent from
@@ -84,7 +84,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'), // vamos a definir estos valores en nuestro archivo de config de entorno
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
