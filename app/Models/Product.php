@@ -49,9 +49,9 @@ class Product extends Model {
     /*
      * la llamamos cuando requerimos saber si un producto esta disponible o no
     */
-    public function estaDiponible()
+    public function estaDisponible()
     {
-       return $this->status == Product::PRODUCTO_DISPONIBLE;
+    	return $this->status == Product::PRODUCTO_DISPONIBLE;
     }
 
 

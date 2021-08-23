@@ -7,9 +7,7 @@ use App\Models\Product;
 use App\Models\Seller;
 use App\Models\User;
 use Illuminate\Http\Request;
-
-
-
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /* el que hace la peticion de crear product tiene que tener autorizacion sufuciente o que sea mismo seller:vendedor
  *
@@ -30,15 +28,6 @@ class SellerProductController extends ApiController
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
 
     /**
@@ -113,16 +102,14 @@ class SellerProductController extends ApiController
         ];
 
 
-        $this->validate($request, $rules);
+        $this->validate($request, $rules); // valifdacion de reglas
 
 
         // despues de validar los campos _ psamos a realziar nuestras propias verificaciones
-        if ($seller->id != $product->seller_id) {
-            return $this->errorResponse('El vendedor especificado no es el vendedor real del product', 422);
-        }
+        $this->verificarVendedor($seller, $product);
 
 
-        // llenar las primeras instancias de la actualizacion usando metodo fill() : al llamar este funcion para asegurar de incluir unicamente los valore recibidos en la peticion usamo only() metod de la petiicion
+        // llenar las primeras instancias de la actualizacion usando metodo fill() : al llamar este funcion para asegurar de incluir unicamente los valores recibidos en la peticion usamo only() metod de la petiicion
         $product->fill($request->only([
           'name',
           'description',
@@ -164,21 +151,40 @@ class SellerProductController extends ApiController
 
 
 
-
-
     }
 
 
-    /**
+    /** asugurar id el vendedor que se especifique en url sea id del vendedor de ese product
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Seller  $seller
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Seller $seller)
+    public function destroy(Seller $seller , Product $product)
     {
-        //
+
+       $this->verificarVendedor($seller, $product); // verificar si el vendedor es el propitario
+
+       $product->delete();
+
+       return $this->showOne($product);
     }
+
+
+
+    /* si el metodo se repita en diferentes acciones - sabemos que no es buen practica ir copiando y pegando codigo
+       por eso se ha nacido este metodo , usada en delet y update
+    */
+    protected function verificarVendedor(Seller $seller, Product $product)
+    {
+        if ($seller->id != $product->seller_id ) {
+            throw new HttpException(422, 'El vendedor especificado no es el vendedor real del producto');
+
+        } // dispara una excepcion de esta manera evitamos agrgar nuevo condicional verificando resultado de esa funcion (refiereo resutrnar respues y luego respuesta json) lo cual no riene sentido
+          //- disparamos exception de tipo hhtp excepcion
+    }
+
+
 
 
 

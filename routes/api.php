@@ -47,14 +47,22 @@ Route::resource('categories.buyers', 'Category\CategoryBuyerController',['only' 
 
 
 
-
-
 /*
  * Products
  * porque a los productos permitimos solo visualizacion ? - si solo en este  controlador permitimos solo visualizacion .
  * asi cuando implementamos controladores mas complejos veremos como es el interaccion de controladores y recursos para crear y editar un producto en especifico
 */
 Route::resource('products', 'Product\ProductController',['only' => ['index','show']]); // lo que corresponde a products url : solo estos 2 metodos : dos acciones del controller de la misma
+// seccion 25 : Implementando las Operaciones Complejas para Product
+Route::resource('products.transaction', 'Product\ProductTransactionController',['only' => ['index']]);
+Route::resource('products.buyer', 'Product\ProductBuyerController',['only' => ['index']]);
+Route::resource('products.category', 'Product\ProductCategoryController',['only' => ['index','update','destroy']]);
+/*
+ - controlador central de toda nuestra ApiRestull , basicamente controlador que nos permite crear instancias de transacciones
+ - este controller es especial porque en esta operacion requerimos informacion de 3  difreentes recurso
+   php artisan make:controller Product/ProductBuyerTransactionController -r -m Product 110 : esta classe muy importante
+*/
+Route::resource('products.buyers.transactions', 'Product\ProductBuyerTransactionController',['only' => ['store']]);
 
 /*
  * Transactions
@@ -87,3 +95,6 @@ Route::resource('users', 'User\UserController',['except' => ['create','edit']]);
  *  equiere el use requerir el controller : ver codersFreee
 */
 //Route::resource('products',ProductsController::class , ['only' => ['index','show']] );
+
+
+

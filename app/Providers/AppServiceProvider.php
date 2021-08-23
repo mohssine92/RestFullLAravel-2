@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 use Illuminate\Support\Facades\Schema;
@@ -32,5 +34,27 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);  /* especificar por defecto numero de caracteres por el asunto de charset en base de datos - suporte de emoticones V: 39 */
+
+        /* registro de un event de modelo de laravel  video 111
+          simplemente cuando un product sea actualizado se ejecute lo siguiente
+        */
+        Product::updated(function($product) {
+            if ($product->quantity == 0  && $product->estaDisponible() ) {
+
+                $product->status = Product::PRODUCTO_NO_DISPONIBLE;
+                $product->save();
+
+            }
+        });
+
+
+
     }
+
+
+
 }
+
+/* 111 - registra y atender este tipo de event existen diferentes maneras
+     ver docs eloquent event
+*/
